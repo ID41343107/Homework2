@@ -1,17 +1,23 @@
 # 41343107 41343109
 
-作業二 graph
+# 作業二 Graph
 
 ## 解題說明
+
 本作業以鄰接串列實作圖形結構，分別完成：
+
 1. DFS / BFS 走訪
+
 2. 最小生成樹（Prim / Kruskal）
+
 3. 最短路徑（Dijkstra）
+
 4. AOV / AOE 活動網路（拓撲排序與關鍵路徑）
 
 對應程式碼位於 `src/` 內的各個主程式檔案。
 
 ## 解題策略
+
 1. `DFS and BFS main.cpp`
    - 使用無向圖的鄰接串列。
    - DFS 使用遞迴；BFS 使用佇列。
@@ -28,6 +34,7 @@
    - 集中常用標頭，供各檔案引用。
 
 ## 程式實作
+
 各檔案皆以 `ListGraph` 類別封裝圖形資料與演算法：
 - `InsertEdge`：插入邊（依題目為有向或無向）。
 - `DFS` / `BFS`：走訪輸出節點順序。
@@ -49,6 +56,7 @@
 | AOE（Critical Path） | O(V + E) | O(V + E) |
 
 ## 測試與驗證
+
 各主程式檔案內的 `main()` 皆建立小型圖並輸出結果，可直接編譯執行檢查：
 - DFS / BFS 是否依序走訪所有可達節點
 - MST 是否輸出合法的樹邊
@@ -62,6 +70,8 @@
 透過將各演算法拆成獨立檔案，能清楚對照每個演算法的核心流程。實作時需特別注意圖的方向性與權重設定，才能確保輸出符合題目需求。
 
 ## 分工
-41343107 程式實作 MST main.cpp  Shortest Paths main.cpp
 
-41343109 程式實作 AOV and AOE main.cpp  DFS and BFS main.cpp
+|           | 程式實作      |                     |
+|-----------|---------------|---------------------|
+|41343107   | MST main.cpp  | Shortest Paths main.cpp |
+|41343109   | AOV and AOE main.cpp  | DFS and BFS main.cpp|
