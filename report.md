@@ -62,4 +62,6 @@
 透過將各演算法拆成獨立檔案，能清楚對照每個演算法的核心流程。實作時需特別注意圖的方向性與權重設定，才能確保輸出符合題目需求。
 
 ## 分工
-41343107
+41343107 程式實作 MST main.cpp  Shortest Paths main.cpp
+
+41343109 程式實作 AOV and AOE main.cpp  DFS and BFS main.cpp
