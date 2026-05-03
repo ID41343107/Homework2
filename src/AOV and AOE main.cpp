@@ -1,128 +1,107 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <climits>
+#include <algorithm>
+
 using namespace std;
 
-struct Edge {
-    int to, weight;
-};
-
-class Graph {
+class ListGraph {
 private:
-    int V;
-    vector<vector<Edge>> adj;
+    int n;
+    vector<vector<pair<int, int>>> adj;
 
 public:
-    Graph(int V) {
-        this->V = V;
-        adj.resize(V);
+    ListGraph(int n) {
+        this->n = n;
+        adj.resize(n);
     }
 
-    void addEdge(int u, int v, int w = 0) {
-        adj[u].push_back({v, w});
+    void InsertEdge(int u, int v, int w) {
+        adj[u].push_back({ v, w });
     }
 
-    vector<int> topologicalSort() {
-        vector<int> indegree(V, 0);
+    // ---------- AOV ----------
+    void AOV() {
+        vector<int> indegree(n, 0);
 
-        for (int u = 0; u < V; u++)
-            for (auto e : adj[u])
-                indegree[e.to]++;
+        for (int u = 0; u < n; u++)
+            for (auto& p : adj[u])
+                indegree[p.first]++;
 
         queue<int> q;
+        for (int i = 0; i < n; i++)
+            if (indegree[i] == 0) q.push(i);
 
-        for (int i = 0; i < V; i++)
-            if (indegree[i] == 0)
-                q.push(i);
-
-        vector<int> topo;
-
+        cout << "AOV: ";
         while (!q.empty()) {
-            int u = q.front();
-            q.pop();
-            topo.push_back(u);
+            int u = q.front(); q.pop();
+            cout << u << " ";
 
-            for (auto e : adj[u]) {
-                if (--indegree[e.to] == 0)
-                    q.push(e.to);
-            }
+            for (auto& p : adj[u])
+                if (--indegree[p.first] == 0)
+                    q.push(p.first);
         }
-
-        if (topo.size() != V) {
-            cout << "偵測到迴圈（不是 DAG）\n";
-            return {};
-        }
-
-        return topo;
+        cout << "\n";
     }
 
-    void criticalPath() {
-        cout << "\n========== AOE 關鍵路徑 ==========\n";
+    // ---------- AOE ----------
+    void AOE() {
+        vector<int> indegree(n, 0);
 
-        vector<int> topo = topologicalSort();
-        if (topo.empty()) return;
+        for (int u = 0; u < n; u++)
+            for (auto& p : adj[u])
+                indegree[p.first]++;
 
-        vector<int> ve(V, 0);
+        queue<int> q;
+        vector<int> topo;
 
-        for (int u : topo) {
-            for (auto e : adj[u]) {
-                ve[e.to] = max(ve[e.to], ve[u] + e.weight);
-            }
+        for (int i = 0; i < n; i++)
+            if (indegree[i] == 0) q.push(i);
+
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            topo.push_back(u);
+
+            for (auto& p : adj[u])
+                if (--indegree[p.first] == 0)
+                    q.push(p.first);
         }
 
-        int projectTime = 0;
-        for (int i = 0; i < V; i++)
-            projectTime = max(projectTime, ve[i]);
+        vector<int> ET(n, 0);
 
-        vector<int> vl(V, projectTime);
+        for (int u : topo)
+            for (auto& p : adj[u])
+                ET[p.first] = max(ET[p.first], ET[u] + p.second);
 
-        for (int i = V - 1; i >= 0; i--) {
+        vector<int> LT(n, ET[n - 1]);
+        for (int i = 0; i < n; i++) LT[i] = ET[n - 1];
+
+        for (int i = topo.size() - 1; i >= 0; i--) {
             int u = topo[i];
-
-            for (auto e : adj[u]) {
-                vl[u] = min(vl[u], vl[e.to] - e.weight);
+            for (auto& p : adj[u])
+                LT[u] = min(LT[u], LT[p.first] - p.second);
+        }
+        cout << "AOE : ";
+        cout << "Critical Path:\n";
+        for (int u = 0; u < n; u++) {
+            for (auto& p : adj[u]) {
+                if (ET[u] == LT[p.first] - p.second)
+                    cout << u << " -> " << p.first << "\n";
             }
         }
-      
-        for (int u = 0; u < V; u++) {
-            for (auto e : adj[u]) {
-
-                int v = e.to;
-                int w = e.weight;
-
-                int ee = ve[u];
-                int ll = vl[v] - w;
-
-                if (ee == ll) {
-                    cout << u << " -> " << v
-                         << " (time=" << w << ")\n";
-                }
-            }
-        }
-
-        cout << "專案完成時間 = " << projectTime << endl;
     }
 };
 
 int main() {
+    ListGraph g(6);
 
-    Graph g(6);
+    g.InsertEdge(0, 1, 3);
+    g.InsertEdge(0, 2, 2);
+    g.InsertEdge(1, 3, 4);
+    g.InsertEdge(2, 3, 1);
+    g.InsertEdge(3, 4, 2);
+    g.InsertEdge(3, 5, 3);
 
-    g.addEdge(0, 1, 3);
-    g.addEdge(0, 2, 2);
-    g.addEdge(1, 3, 2);
-    g.addEdge(2, 3, 1);
-    g.addEdge(3, 4, 4);
-    g.addEdge(4, 5, 2);
-
-    vector<int> topo = g.topologicalSort();
-
-    cout << "拓樸排序：";
-    for (int x : topo) cout << x << " ";
-    cout << "\n";
-
-    g.criticalPath();
-
-    return 0;
+    g.AOV();
+    g.AOE();
 }

@@ -1,148 +1,72 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <algorithm>
+
 using namespace std;
 
-class Graph {
+class ListGraph {
 private:
     int n;
     vector<vector<int>> adj;
-    vector<bool> visited;
 
 public:
-    Graph(int vertices);
-    void addEdge(int u, int v);
-
-    void DFS();
-    void DFS(int v);
-
-    void BFS(int v);
-};
-
-Graph::Graph(int vertices)
-{
-    n = vertices;
-    adj.resize(n);
-    visited.resize(n, false);
-}
-
-void Graph::addEdge(int u, int v)
-{
-    if (u >= n || v >= n) return;
-    adj[u].push_back(v);
-    adj[v].push_back(u);
-}
-
-// ===== DFS =====
-void Graph::DFS()
-{
-    fill(visited.begin(), visited.end(), false);
-
-    cout << "DFS traversal: ";
-
-    for (int i = 0; i < n; i++) // 處理非連通圖
-    {
-        if (!visited[i])
-            DFS(i);
+    ListGraph(int n) {
+        this->n = n;
+        adj.resize(n);
     }
 
-    cout << endl;
-}
-
-void Graph::DFS(int v)
-{
-    visited[v] = true;
-    cout << v << " ";
-
-    for (int w : adj[v])
-    {
-        if (!visited[w])
-            DFS(w);
+    void InsertEdge(int u, int v) {
+        adj[u].push_back(v);
+        adj[v].push_back(u); // undirected
     }
-}
 
-// ===== BFS =====
-void Graph::BFS(int start)
-{
-    fill(visited.begin(), visited.end(), false);
-
-    queue<int> q;
-
-    cout << "BFS traversal: ";
-
-    visited[start] = true;
-    q.push(start);
-
-    while (!q.empty())
-    {
-        int v = q.front();
-        q.pop();
-
-        cout << v << " ";
-
-        for (int w : adj[v])
-        {
-            if (!visited[w])
-            {
-                visited[w] = true;
-                q.push(w);
-            }
+    void DFSUtil(int u, vector<bool>& visited) {
+        visited[u] = true;
+        cout << u << " ";
+        for (int v : adj[u]) {
+            if (!visited[v]) DFSUtil(v, visited);
         }
     }
 
-    // 處理非連通圖
-    for (int i = 0; i < n; i++)
-    {
-        if (!visited[i])
-        {
-            visited[i] = true;
-            q.push(i);
+    void DFS(int start) {
+        vector<bool> visited(n, false);
+        DFSUtil(start, visited);
+    }
 
-            while (!q.empty())
-            {
-                int v = q.front();
-                q.pop();
+    void BFS(int start) {
+        vector<bool> visited(n, false);
+        queue<int> q;
 
-                cout << v << " ";
+        visited[start] = true;
+        q.push(start);
 
-                for (int w : adj[v])
-                {
-                    if (!visited[w])
-                    {
-                        visited[w] = true;
-                        q.push(w);
-                    }
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            cout << u << " ";
+
+            for (int v : adj[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
                 }
             }
         }
     }
+};
 
-    cout << endl;
-}
+int main() {
+    ListGraph g(5);
 
-//--------------------------------------
-/*
-        0
-      /   \
-     1     2
-    / \     \
-   3   4     5
-*/
-//--------------------------------------
+    g.InsertEdge(0, 1);
+    g.InsertEdge(0, 2);
+    g.InsertEdge(1, 3);
+    g.InsertEdge(2, 4);
 
-int main()
-{
-    Graph g(6);
+    cout << "DFS: ";
+    g.DFS(0);
+    cout << "\n";
 
-    g.addEdge(0, 1);
-    g.addEdge(0, 2);
-    g.addEdge(1, 3);
-    g.addEdge(1, 4);
-    g.addEdge(2, 5);
-
-    g.DFS();
+    cout << "BFS: ";
     g.BFS(0);
-
-    return 0;
+    cout << "\n";
 }
