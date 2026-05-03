@@ -1,42 +1,28 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <climits>
-#include <tuple>
-#include <algorithm>
 
 using namespace std;
 
-class Graph {
-public:
-    virtual ~Graph() {}
-
-    virtual void InsertEdge(int u, int v, int w = 1) = 0;
-
-protected:
-    int n = 0;
-    int e = 0;
-};
-class TraversalGraph : public Graph {
+class ListGraph {
 private:
+    int n;
     vector<vector<int>> adj;
 
 public:
-    TraversalGraph(int n) {
+    ListGraph(int n) {
         this->n = n;
         adj.resize(n);
     }
 
-    void InsertEdge(int u, int v, int w = 1) override {
+    void InsertEdge(int u, int v) {
         adj[u].push_back(v);
-        adj[v].push_back(u);
+        adj[v].push_back(u); // undirected
     }
 
-    // DFS
     void DFSUtil(int u, vector<bool>& visited) {
         visited[u] = true;
         cout << u << " ";
-
         for (int v : adj[u]) {
             if (!visited[v]) DFSUtil(v, visited);
         }
@@ -44,12 +30,9 @@ public:
 
     void DFS(int start) {
         vector<bool> visited(n, false);
-        cout << "DFS: ";
         DFSUtil(start, visited);
-        cout << endl;
     }
 
-    // BFS
     void BFS(int start) {
         vector<bool> visited(n, false);
         queue<int> q;
@@ -57,12 +40,8 @@ public:
         visited[start] = true;
         q.push(start);
 
-        cout << "BFS: ";
-
         while (!q.empty()) {
-            int u = q.front();
-            q.pop();
-
+            int u = q.front(); q.pop();
             cout << u << " ";
 
             for (int v : adj[u]) {
@@ -72,6 +51,22 @@ public:
                 }
             }
         }
-        cout << endl;
     }
 };
+
+int main() {
+    ListGraph g(5);
+
+    g.InsertEdge(0, 1);
+    g.InsertEdge(0, 2);
+    g.InsertEdge(1, 3);
+    g.InsertEdge(2, 4);
+
+    cout << "DFS: ";
+    g.DFS(0);
+    cout << "\n";
+
+    cout << "BFS: ";
+    g.BFS(0);
+    cout << "\n";
+}
