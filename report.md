@@ -2,7 +2,7 @@
 
 ## 解題說明
 本作業依照 src 內的程式碼，實作圖形走訪、最小生成樹、最短路徑、以及 AOV/AOE 的
-拓樸排序與關鍵路徑。各功能分別在四個 main.cpp 中示範，直接以程式內建的範例圖執行
+拓撲排序與關鍵路徑。各功能分別在四個 main.cpp 中示範，直接以程式內建的範例圖執行
 並輸出結果。
 
 ## 解題想法
@@ -11,7 +11,7 @@
    避免成環，Prim 使用 min-heap 擴張。
 3. 最短路徑：Dijkstra 使用 priority queue；Bellman-Ford 反覆鬆弛並檢查負權迴圈；
    Floyd-Warshall 以矩陣動態規劃更新所有點對距離。
-4. AOV/AOE：拓樸排序以 indegree + queue 完成；AOE 依拓樸序計算 ve/vl，輸出關鍵路徑
+4. AOV/AOE：拓撲排序以 indegree + queue 完成；AOE 依拓撲序計算 ve/vl，輸出關鍵路徑
    與專案完成時間。
 
 ## 程式實作
@@ -111,7 +111,8 @@ g6.criticalPath();
 各程式皆在 main 中直接建構範例圖：
 - DFS/BFS：6 個節點的無向樹狀圖（0-1-3/4、0-2-5）。
 - MST：6 個節點、7 條帶權無向邊。
-- Shortest Paths：5 個節點、6 條帶權邊。
+- Shortest Paths：5 個節點、6 條帶權邊；DijkstraGraph 在 addEdge 時同時加入正反邊
+  （無向圖），BellmanGraph 僅加入單向邊（有向圖），因此輸出距離不完全相同。
 - AOV/AOE：6 個節點、6 條帶權有向邊。
 
 ### 輸出
@@ -149,6 +150,7 @@ BFS traversal: 0 1 2 3 4 5
 ```
 
 #### Shortest Paths
+（因為 Dijkstra 使用無向邊、Bellman-Ford 使用有向邊，距離結果不同屬正常。）
 ```
 ========== Dijkstra 最短路 ==========
 0 = 0
