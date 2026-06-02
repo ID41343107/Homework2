@@ -692,7 +692,6 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (這份作業展示用，其實不一定會用到)
         for (int j = 0; j < n; j++) if (mx[v][j] == 1) e--;
         mx.erase(mx.begin() + v);
         for (int i = 0; i < (int)mx.size(); i++) mx[i].erase(mx[i].begin() + v);
@@ -899,7 +898,6 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (展示用，不一定會用到)
         while (F_edge[v] != NULL) {
             EdgeNode* p = F_edge[v];
             int other = (p->c1 == v) ? p->c2 : p->c1;
@@ -951,7 +949,7 @@ public:
     }
 };
 
-/* ===================== Main - match image 6 test style ===================== */
+/* ===================== Main ===================== */
 int main() {
     int op,vc;
 
