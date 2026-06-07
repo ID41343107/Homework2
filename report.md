@@ -10,613 +10,22 @@ Adjacency Multilist (鄰接多重串列）
 
 # 解題策略
 
-## 1. class Graph
+本程式使用 **繼承 + 多型** 實作三種 Graph 表示法，並共用同一套操作介面，如 `InsertVertex`、`InsertEdge`、`DeleteEdge`、`Degree` 與 `Display`。
 
-圖形（Graph）的抽象基底類別，定義所有圖形結構共同擁有的功能。
+首先建立抽象父類別 `Graph`，將三種圖形表示法共通的屬性與操作統一管理，並宣告純虛擬函式，讓子類別必須各自實作對應功能。
 
-包含：
+接著建立三個子類別：
 
-- 頂點數量 `n`
-- 邊數量 `e`
+- `AMatrix`：使用 **Adjacency Matrix**
+- `AList`：使用 **Adjacency List**
+- `AMatrixList`：使用 **Adjacency Multilist**
 
-提供：
+雖然三者功能相同，但因為底層資料結構不同，所以 `Degree`、`ExistsEdge`、`InsertEdge` 等操作的實作方式也不同，例如：
+- Matrix 透過走訪矩陣列/欄完成操作
+- List 透過串列長度與節點搜尋完成操作
+- Multilist 透過 edge chain 完成操作
 
-- 判斷是否為空圖
-- 取得頂點數量
-- 取得邊數量
-
-並宣告以下純虛擬函式：
-
-- Degree()
-- ExistsEdge()
-- InsertVertex()
-- InsertEdge()
-- DeleteVertex()
-- DeleteEdge()
-
-讓各種圖形表示法繼承後自行實作。
-
----
-
-## 2. class AMatrix
-
-鄰接矩陣（Adjacency Matrix）實作。
-
-利用：
-
-```cpp
-vector<vector<int>>
-```
-
-建立二維矩陣儲存圖形。
-
-矩陣中：
-
-- 1 表示有邊
-- 0 表示無邊
-
-例如：
-
-0 1 0
-1 0 1
-0 1 0
-
-表示：
-
-0 ── 1 ── 2
-
----
-
-## 3. AMatrix::InsertVertex()
-
-新增頂點。
-
-作法：
-
-1. 頂點數量 n++
-2. 所有既有列新增一個 0
-3. 新增一列 n 個 0
-
-使矩陣維持 n × n 大小。
-
----
-
-## 4. AMatrix::InsertEdge()
-
-新增邊。
-
-由於本程式為無向圖：
-
-```cpp
-mx[u][v] = 1;
-mx[v][u] = 1;
-```
-
-同時更新兩個方向。
-
-若原本不存在該邊：
-
-- 建立連結
-- 邊數 e++
-
----
-
-## 5. AMatrix::DeleteEdge()
-
-刪除邊。
-
-將：
-
-```cpp
-mx[u][v]
-mx[v][u]
-```
-
-設為 0。
-
-並更新邊數。
-
----
-
-## 6. AMatrix::Degree()
-
-計算頂點度數。
-
-逐一檢查：
-
-```cpp
-mx[u][i]
-```
-
-統計值為 1 的數量。
-
-即為該頂點連接的邊數。
-
----
-
-## 7. AMatrix::Display()
-
-輸出鄰接矩陣。
-
-格式：
-
-```text
-Adjacency Matrix
-0 1 1
-1 0 0
-1 0 0
-```
-
-方便觀察圖形結構。
-
----
-
-## 8. class AList
-
-鄰接串列（Adjacency List）實作。
-
-利用：
-
-```cpp
-vector<list<int>>
-```
-
-儲存每個頂點相鄰的頂點。
-
-例如：
-
-```text
-0 → 1 → 2
-1 → 0
-2 → 0
-```
-
-表示：
-
-0 同時連接 1 與 2。
-
----
-
-## 9. AList::InsertVertex()
-
-新增頂點。
-
-建立新的空串列：
-
-```cpp
-adj.push_back(list<int>());
-```
-
-表示新的頂點尚未與任何頂點連接。
-
----
-
-## 10. AList::InsertEdge()
-
-新增邊。
-
-將：
-
-```cpp
-v
-```
-
-加入：
-
-```cpp
-adj[u]
-```
-
-同時將：
-
-```cpp
-u
-```
-
-加入：
-
-```cpp
-adj[v]
-```
-
-形成無向圖連結。
-
----
-
-## 11. AList::ExistsEdge()
-
-判斷邊是否存在。
-
-逐一搜尋：
-
-```cpp
-adj[u]
-```
-
-若找到 v：
-
-```cpp
-return true;
-```
-
-否則回傳 false。
-
----
-
-## 12. AList::Degree()
-
-計算頂點度數。
-
-由於每個鄰接頂點都存於串列中：
-
-```cpp
-adj[u].size()
-```
-
-即可得到度數。
-
----
-
-## 13. AList::DeleteEdge()
-
-刪除邊。
-
-利用：
-
-```cpp
-list.remove()
-```
-
-同時移除：
-
-- u → v
-- v → u
-
-並更新邊數。
-
----
-
-## 14. class AMatrixList
-
-鄰接多重串列（Adjacency Multilist）實作。
-
-適用於無向圖。
-
-特色：
-
-每條邊只建立一個 EdgeNode。
-
-可同時被兩個頂點共享。
-
-避免重複儲存邊資訊。
-
----
-
-## 15. struct EdgeNode
-
-表示圖中的一條邊。
-
-包含：
-
-```cpp
-c0
-```
-
-邊編號
-
-```cpp
-c1
-```
-
-第一個頂點
-
-```cpp
-c2
-```
-
-第二個頂點
-
-```cpp
-c1_link
-```
-
-同頂點 c1 的下一條邊
-
-```cpp
-c2_link
-```
-
-同頂點 c2 的下一條邊
-
----
-
-## 16. F_edge
-
-頂點表頭陣列。
-
-```cpp
-vector<EdgeNode*> F_edge
-```
-
-用途：
-
-紀錄每個頂點的第一條邊。
-
-例如：
-
-```text
-vertex 0 → N2
-vertex 1 → N1
-vertex 2 → N0
-```
-
----
-
-## 17. A_edges
-
-邊節點陣列。
-
-```cpp
-vector<EdgeNode*> A_edges
-```
-
-保存所有邊節點。
-
-方便：
-
-- 顯示資料
-- 搜尋邊
-- 刪除邊
-
----
-
-## 18. AMatrixList::InsertEdge()
-
-新增邊。
-
-建立：
-
-```cpp
-EdgeNode
-```
-
-後利用頭插法：
-
-```cpp
-edge->c1_link = F_edge[u];
-edge->c2_link = F_edge[v];
-```
-
-加入兩個頂點的邊串列。
-
-最後：
-
-```cpp
-e++
-```
-
-更新邊數。
-
----
-
-## 19. AMatrixList::ExistsEdge()
-
-判斷邊是否存在。
-
-從：
-
-```cpp
-F_edge[u]
-```
-
-開始走訪。
-
-若找到：
-
-```cpp
-(u,v)
-```
-
-或
-
-```cpp
-(v,u)
-```
-
-則回傳 true。
-
----
-
-## 20. AMatrixList::Degree()
-
-計算頂點度數。
-
-沿著：
-
-```cpp
-nextFrom()
-```
-
-不斷走訪與該頂點相連的邊。
-
-統計總數即為 Degree。
-
----
-
-## 21. AMatrixList::DeleteEdge()
-
-刪除邊。
-
-步驟：
-
-1. 找出目標 EdgeNode
-2. 從兩個頂點串列中解除連結
-3. 從 A_edges 中移除
-4. delete 記憶體
-5. e--
-
-完成邊的刪除。
-
----
-
-## 22. AMatrixList::Display()
-
-輸出鄰接多重串列。
-
-包含：
-
-### Edge Nodes
-
-```text
-N0 [0 1 N2 N1]
-N1 [1 2 0 N0]
-```
-
-顯示：
-
-- 邊編號
-- 連接頂點
-- 下一條邊
-
----
-
-### Vertex Lists
-
-```text
-vertex 0 : N0 -> N2
-vertex 1 : N1
-vertex 2 : N2
-```
-
-顯示每個頂點所連接的邊。
-
----
-
-## 23. main()
-
-主程式。
-
-先輸入：
-
-```cpp
-op
-```
-
-選擇圖形表示法：
-
-```text
-1 → Adjacency Matrix
-2 → Adjacency List
-3 → Adjacency Multilist
-```
-
-再輸入：
-
-```cpp
-vc
-```
-
-頂點數量。
-
----
-
-## 24. 建立圖形
-
-根據使用者選擇：
-
-```cpp
-AMatrix
-AList
-AMatrixList
-```
-
-建立對應圖形物件。
-
-並新增：
-
-```cpp
-vc
-```
-
-個頂點。
-
----
-
-## 25. 輸入邊資訊
-
-讀入三組：
-
-```cpp
-u v
-```
-
-代表：
-
-```text
-u ── v
-```
-
-並呼叫：
-
-```cpp
-InsertEdge()
-```
-
-建立邊。
-
----
-
-## 26. 輸出結果
-
-若：
-
-### op = 1
-
-輸出鄰接矩陣。
-
----
-
-### op = 2
-
-輸出：
-
-```text
-Degree = ...
-Edge exists.
-```
-
-測試：
-
-- Degree()
-- ExistsEdge()
-
-功能。
-
----
-
-### op = 3
-
-輸出：
-
-```text
-Edge Nodes
-Vertex Lists
-```
-
-展示鄰接多重串列結構。
-
----
-
-
-
-- Graph 為抽象基底類別
-- AMatrix 使用鄰接矩陣表示圖
-- AList 使用鄰接串列表示圖
-- AMatrixList 使用鄰接多重串列表示圖
-- EdgeNode 負責儲存每條邊的資訊
-
-本程式利用三種不同圖形表示法實作相同的圖形操作，展示了圖論中常見的資料結構設計與應用。
-
+最後在主程式中建立各種 Graph 物件並插入資料，再呼叫各自的 `Display()`，即可比較三種表示法的差異。
 ## 程式實作
 
 以下為主要程式碼：
@@ -625,8 +34,10 @@ Vertex Lists
 #include <iostream>
 #include <vector>
 #include <list>
+#include <utility>
 using namespace std;
-//gragh 副
+
+/* ===================== Graph ADT ===================== */
 class Graph {
 public:
     Graph() : n(0), e(0) {}
@@ -650,17 +61,19 @@ protected:
     int e;
 };
 
-/* ===================== 1) AdjacencyMatrix ===================== */
+/* ===================== 1) Adjacency Matrix ===================== */
 class AMatrix : public Graph {
 private:
-    vector< vector<int> > mx;
+    vector<vector<int>> mx;
 
 public:
     AMatrix() : Graph() {}
 
     int Degree(int u) const override {
         int t = 0;
-        for (int i = 0; i < n; i++) if (mx[u][i] == 1) t++;
+        for (int i = 0; i < n; i++) {
+            if (mx[u][i] == 1) t++;
+        }
         return t;
     }
 
@@ -670,7 +83,9 @@ public:
 
     void InsertVertex(int /*v*/) override {
         n++;
-        for (int i = 0; i < (int)mx.size(); i++) mx[i].push_back(0);
+        for (int i = 0; i < (int)mx.size(); i++) {
+            mx[i].push_back(0);
+        }
         mx.push_back(vector<int>(n, 0));
     }
 
@@ -692,13 +107,16 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        for (int j = 0; j < n; j++) if (mx[v][j] == 1) e--;
+        for (int j = 0; j < n; j++) {
+            if (mx[v][j] == 1) e--;
+        }
         mx.erase(mx.begin() + v);
-        for (int i = 0; i < (int)mx.size(); i++) mx[i].erase(mx[i].begin() + v);
+        for (int i = 0; i < (int)mx.size(); i++) {
+            mx[i].erase(mx[i].begin() + v);
+        }
         n--;
     }
 
-    // display exactly like image 6 (no index header)
     void Display() const {
         cout << "Adjacency Matrix\n";
         for (int i = 0; i < n; i++) {
@@ -710,7 +128,7 @@ public:
     }
 };
 
-/* ===================== 2) AdjacencyList ===================== */
+/* ===================== 2) Adjacency List ===================== */
 class AList : public Graph {
 private:
     vector< list<int> > adj;
@@ -723,9 +141,8 @@ public:
     }
 
     bool ExistsEdge(int u, int v) const override {
-        list<int>::const_iterator it;
-        for (it = adj[u].begin(); it != adj[u].end(); ++it) {
-            if (*it == v) return true;
+        for (int x : adj[u]) {
+            if (x == v) return true;
         }
         return false;
     }
@@ -751,24 +168,33 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (展示用)
-        list<int>::iterator it;
-        for (it = adj[v].begin(); it != adj[v].end(); ++it) {
-            int u = *it;
+        for (int u : adj[v]) {
             adj[u].remove(v);
             e--;
         }
         adj.erase(adj.begin() + v);
         n--;
+
         for (int i = 0; i < n; i++) {
-            for (it = adj[i].begin(); it != adj[i].end(); ++it) {
-                if (*it > v) (*it)--;
+            for (int& x : adj[i]) {
+                if (x > v) x--;
             }
+        }
+    }
+
+    // 輸出格式改成圖片中的 aList[1], aList[2] ...
+    void Display() const {
+        for (int i = 0; i < n; i++) {
+            cout << "aList[" << (i + 1) << "] ";
+            for (int x : adj[i]) {
+                cout << (x + 1) << " ";
+            }
+            cout << "\n";
         }
     }
 };
 
-/* ===================== 3) AdjacencyMatrixList (Adjacency Multilist) ===================== */
+/* ===================== 3) Adjacency Multilist ===================== */
 class AMatrixList : public Graph {
 private:
     struct EdgeNode {
@@ -829,7 +255,9 @@ public:
     AMatrixList() : Graph() {}
 
     ~AMatrixList() override {
-        for (int i = 0; i < (int)A_edges.size(); i++) delete A_edges[i];
+        for (int i = 0; i < (int)A_edges.size(); i++) {
+            delete A_edges[i];
+        }
     }
 
     int Degree(int u) const override {
@@ -852,7 +280,6 @@ public:
     }
 
     void InsertVertex(int /*v*/) override {
-        // for multilist, we need a head pointer per vertex
         F_edge.push_back(NULL);
         n++;
     }
@@ -863,7 +290,6 @@ public:
 
         EdgeNode* edge = new EdgeNode(e, u, v);
 
-        // head insert into u / v lists
         edge->c1_link = F_edge[u];
         edge->c2_link = F_edge[v];
         F_edge[u] = edge;
@@ -879,7 +305,10 @@ public:
         EdgeNode* target = NULL;
         EdgeNode* p = F_edge[u];
         while (p != NULL) {
-            if (isTarget(p, u, v)) { target = p; break; }
+            if (isTarget(p, u, v)) {
+                target = p;
+                break;
+            }
             p = nextFrom(p, u);
         }
         if (target == NULL) return;
@@ -887,10 +316,11 @@ public:
         unlinkFromVertex(u, target);
         unlinkFromVertex(v, target);
 
-        // remove from A_edges
-        vector<EdgeNode*>::iterator it;
-        for (it = A_edges.begin(); it != A_edges.end(); ++it) {
-            if (*it == target) { A_edges.erase(it); break; }
+        for (auto it = A_edges.begin(); it != A_edges.end(); ++it) {
+            if (*it == target) {
+                A_edges.erase(it);
+                break;
+            }
         }
 
         delete target;
@@ -903,21 +333,22 @@ public:
             int other = (p->c1 == v) ? p->c2 : p->c1;
             DeleteEdge(v, other);
         }
+
         F_edge.erase(F_edge.begin() + v);
         n--;
+
         for (int i = 0; i < (int)A_edges.size(); i++) {
             if (A_edges[i]->c1 > v) A_edges[i]->c1--;
             if (A_edges[i]->c2 > v) A_edges[i]->c2--;
         }
     }
 
-    // Display exactly like image 6
     void Display() const {
         cout << "---------- Edge Nodes ----------\n";
         for (int i = 0; i < (int)A_edges.size(); i++) {
             EdgeNode* edge = A_edges[i];
             cout << "N" << edge->c0 << " [ "
-                << edge->c1 << " " << edge->c2 << " ";
+                << (edge->c1 + 1) << " " << (edge->c2 + 1) << " ";
 
             if (edge->c1_link != NULL) cout << "N" << edge->c1_link->c0 << " ";
             else cout << "0 ";
@@ -925,16 +356,15 @@ public:
             if (edge->c2_link != NULL) cout << "N" << edge->c2_link->c0 << " ";
             else cout << "0 ";
 
-            cout << "] edge(" << edge->c1 << "," << edge->c2 << ")\n";
+            cout << "] edge(" << (edge->c1 + 1) << "," << (edge->c2 + 1) << ")\n";
         }
 
         cout << "\n---------- Vertex Lists ----------\n";
         for (int i = 0; i < n; i++) {
-            cout << "vertex " << i << " : ";
+            cout << "vertex " << (i + 1) << " : ";
             EdgeNode* p = F_edge[i];
             while (p != NULL) {
                 cout << "N" << p->c0;
-
                 bool hasNext = false;
                 if (p->c1 == i && p->c1_link != NULL) hasNext = true;
                 if (p->c2 == i && p->c2_link != NULL) hasNext = true;
@@ -951,87 +381,85 @@ public:
 
 /* ===================== Main ===================== */
 int main() {
-    int op,vc;
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-    cin >> op;      // choose 1/2/3
-    cin >> vc;      // Vertex count
+    int vc, ec;
+    cin >> vc >> ec;
 
-    if (op == 1) {
-        AMatrix g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
-
-        // read 3 edges (like your sample)
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
-        }
-        g.Display();
+    vector<pair<int, int>> edges(ec);
+    for (int i = 0; i < ec; i++) {
+        cin >> edges[i].first >> edges[i].second;
     }
-    else if (op == 2) {
-        AList g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
 
-        // read 3 edges
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
+    AMatrix g1;
+    AList g2;
+    AMatrixList g3;
+
+    for (int i = 0; i < vc; i++) {
+        g1.InsertVertex(i);
+        g2.InsertVertex(i);
+        g3.InsertVertex(i);
+    }
+
+    for (int i = 0; i < ec; i++) {
+        int u = edges[i].first - 1;  // 1-based -> 0-based
+        int v = edges[i].second - 1; // 1-based -> 0-based
+
+        if (u < 0 || u >= vc || v < 0 || v >= vc) {
+            cout << "Invalid edge input: " << edges[i].first << " " << edges[i].second << "\n";
+            return 0;
         }
 
-        // then do Degree(0) and CheckEdge(0,2) like sample
-        cout << "Degree = " << g.Degree(0) << "\n";
-        if (g.ExistsEdge(0, 2)) cout << "Edge exists.\n";
-        else cout << "Edge does not exist.\n";
+        g1.InsertEdge(u, v);
+        g2.InsertEdge(u, v);
+        g3.InsertEdge(u, v);
     }
-    else if (op == 3) {
-        AMatrixList g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
 
-        // read 3 edges
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
-        }
-        g.Display();
-    }
+    cout << "===== 1) Adjacency Matrix =====\n";
+    g1.Display();
+
+    cout << "\n===== 2) Adjacency List =====\n";
+    g2.Display();
+
+    cout << "\n===== 3) Adjacency Multilist =====\n";
+    g3.Display();
 
     return 0;
 }
-
 ```
 
-各檔案皆以 `ListGraph` 類別封裝圖形資料與演算法：
-- `InsertEdge`：插入邊（依題目為有向或無向）。
-- `DFS` / `BFS`：走訪輸出節點順序。
-- `Prim` / `Kruskal`：輸出最小生成樹的邊集合。
-- `Dijkstra`：輸出起點到各節點最短距離。
-- `AOV` / `AOE`：輸出拓撲序與關鍵路徑。
-
 ## 效能分析
-設頂點數為 V、邊數為 E：
 
-| 演算法 | 時間複雜度 | 空間複雜度 |
-|:---:|:---:|:---:|
-| DFS | O(V + E) | O(V + E) |
-| BFS | O(V + E) | O(V + E) |
-| Prim（priority queue） | O(E log V) | O(V + E) |
-| Kruskal（sort + DSU） | O(E log E) | O(V + E) |
-| Dijkstra（priority queue） | O(E log V) | O(V + E) |
-| AOV（Topological Sort） | O(V + E) | O(V + E) |
-| AOE（Critical Path） | O(V + E) | O(V + E) |
+設頂點數為 `V`、邊數為 `E`。
+
+| 操作/方法 | AMatrix | AList | AMatrixList |
+|:---|:---:|:---:|:---:|
+| `Degree(u)` | `O(V)` | `O(deg(u))` | `O(deg(u))` |
+| `ExistsEdge(u, v)` | `O(1)` | `O(deg(u))` | `O(deg(u))` |
+| `InsertVertex(v)` | `O(V)` | `O(1)` | `O(1)` |
+| `InsertEdge(u, v)` | `O(1)` | `O(deg(u))` | `O(1)` |
+| `DeleteEdge(u, v)` | `O(1)` | `O(deg(u))` | `O(deg(u))` |
+| `DeleteVertex(v)` | `O(V^2)` | `O(V + E)` | `O(V + E)` |
+| `Display()` | `O(V^2)` | `O(V + E)` | `O(V + E)` |
 
 ## 測試與驗證
 
-各主程式檔案內的 `main()` 皆建立小型圖並輸出結果，可直接編譯執行檢查：
-- DFS / BFS 是否依序走訪所有可達節點
-- MST 是否輸出合法的樹邊
-- Dijkstra 是否輸出合理的最短距離
-- AOV / AOE 是否輸出拓撲序與關鍵路徑
+本程式可透過 `main()` 建立圖並呼叫三種表示法的操作函式來驗證結果，例如：
+
+- `InsertVertex()` 是否正確建立頂點
+- `InsertEdge()` 是否正確加入邊
+- `Degree()` 是否回傳正確度數
+- `ExistsEdge()` 是否能正確判斷邊是否存在
+- `Display()` 是否能輸出符合預期的圖形表示
+
+測試時可輸入小型圖，並比對 `Adjacency Matrix`、`Adjacency List`、`Adjacency Multilist` 的輸出是否正確，以確認三種資料結構的實作都能正常運作。
 
 ## 結論
-本作業完成多種圖形演算法的基本實作，採用鄰接串列作為底層資料結構，並能輸出走訪順序、最小生成樹、最短距離與關鍵路徑等結果。
+
+本程式透過 **繼承與多型**，成功將三種不同的 Graph 表示法整合在同一套操作介面下，使程式架構更清楚，也更容易維護與擴充。
+
+`Adjacency Matrix`、`Adjacency List` 與 `Adjacency Multilist` 雖然都能表示圖，但在時間與空間效率上各有優缺點，因此可依不同需求選擇合適的資料結構。藉由本次實作，可以更清楚了解不同圖形表示法之間的差異，以及物件導向設計在資料結構實作上的優勢。
 
 ## 心得討論
 透過將各演算法拆成獨立檔案，能清楚對照每個演算法的核心流程。實作時需特別注意圖的方向性與權重設定，才能確保輸出符合題目需求。
