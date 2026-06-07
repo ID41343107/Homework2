@@ -55,7 +55,7 @@ private:
         }
     }
 
-    // 4. Biconnected
+    // Biconnected
     void BiconnectedUtil(int u, int parent) {
         dfn[u] = low[u] = ++dfnCounter;
         int children = 0;
