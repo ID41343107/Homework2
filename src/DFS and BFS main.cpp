@@ -32,7 +32,7 @@ private:
         visited[start] = true;
         q.push(start);
         while (!q.empty()) {
-            int u = q.front(); 
+            int u = q.front();
             q.pop();
             cout << u << " ";
             for (int v : adj[u]) {
@@ -65,7 +65,8 @@ private:
 
             if (dfn[v] > 0) {
                 low[u] = min(low[u], dfn[v]);
-            } else {
+            }
+            else {
                 children++;
                 BiconnectedUtil(v, u);
                 low[u] = min(low[u], low[v]);
@@ -74,7 +75,7 @@ private:
                 }
             }
         }
-        
+
         if (parent == -1 && children > 1) {
             isArticulation[u] = true;
         }
@@ -93,7 +94,7 @@ public:
             adj[v].push_back(u);
         }
     }
-    
+
     void DFS() {
         fill(visited.begin(), visited.end(), false);
         for (int i = 0; i < n; i++) {
@@ -116,7 +117,7 @@ public:
     void ConnectedComponents() {
         fill(visited.begin(), visited.end(), false);
         int count = 0;
-        
+
         for (int i = 0; i < n; i++) {
             if (!visited[i]) {
                 count++;
