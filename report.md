@@ -518,29 +518,37 @@ public:
     }
 
     void InsertEdge(int u, int v, int w) {
-        adj[u].push_back({ v, w });
+        adj[u].push_back(make_pair(v, w));
     }
 
     // ---------- AOV ----------
     void AOV() {
         vector<int> indegree(n, 0);
 
-        for (int u = 0; u < n; u++)
-            for (auto& p : adj[u])
-                indegree[p.first]++;
+        for (int u = 0; u < n; u++) {
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                indegree[v]++;
+            }
+        }
 
         queue<int> q;
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             if (indegree[i] == 0) q.push(i);
+        }
 
         cout << "AOV: ";
         while (!q.empty()) {
-            int u = q.front(); q.pop();
+            int u = q.front();
+            q.pop();
             cout << u << " ";
 
-            for (auto& p : adj[u])
-                if (--indegree[p.first] == 0)
-                    q.push(p.first);
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                if (--indegree[v] == 0) {
+                    q.push(v);
+                }
+            }
         }
         cout << "\n";
     }
@@ -549,45 +557,67 @@ public:
     void AOE() {
         vector<int> indegree(n, 0);
 
-        for (int u = 0; u < n; u++)
-            for (auto& p : adj[u])
-                indegree[p.first]++;
+        for (int u = 0; u < n; u++) {
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                indegree[v]++;
+            }
+        }
 
         queue<int> q;
         vector<int> topo;
 
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             if (indegree[i] == 0) q.push(i);
+        }
 
         while (!q.empty()) {
-            int u = q.front(); q.pop();
+            int u = q.front();
+            q.pop();
             topo.push_back(u);
 
-            for (auto& p : adj[u])
-                if (--indegree[p.first] == 0)
-                    q.push(p.first);
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                if (--indegree[v] == 0) {
+                    q.push(v);
+                }
+            }
         }
 
         vector<int> ET(n, 0);
 
-        for (int u : topo)
-            for (auto& p : adj[u])
-                ET[p.first] = max(ET[p.first], ET[u] + p.second);
+        for (vector<int>::iterator it = topo.begin(); it != topo.end(); ++it) {
+            int u = *it;
+            for (vector<pair<int, int> >::iterator jt = adj[u].begin(); jt != adj[u].end(); ++jt) {
+                int v = jt->first;
+                int w = jt->second;
+                ET[v] = max(ET[v], ET[u] + w);
+            }
+        }
 
         vector<int> LT(n, ET[n - 1]);
-        for (int i = 0; i < n; i++) LT[i] = ET[n - 1];
-
-        for (int i = topo.size() - 1; i >= 0; i--) {
-            int u = topo[i];
-            for (auto& p : adj[u])
-                LT[u] = min(LT[u], LT[p.first] - p.second);
+        for (int i = 0; i < n; i++) {
+            LT[i] = ET[n - 1];
         }
+
+        for (int i = (int)topo.size() - 1; i >= 0; i--) {
+            int u = topo[i];
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                int w = it->second;
+                LT[u] = min(LT[u], LT[v] - w);
+            }
+        }
+
         cout << "AOE : ";
         cout << "Critical Path:\n";
         for (int u = 0; u < n; u++) {
-            for (auto& p : adj[u]) {
-                if (ET[u] == LT[p.first] - p.second)
-                    cout << u << " -> " << p.first << "\n";
+            for (vector<pair<int, int> >::iterator it = adj[u].begin(); it != adj[u].end(); ++it) {
+                int v = it->first;
+                int w = it->second;
+                if (ET[u] == LT[v] - w) {
+                    cout << u << " -> " << v << "\n";
+                }
             }
         }
     }
