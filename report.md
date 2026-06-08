@@ -655,25 +655,9 @@ int main() {
 
 ## 測試與驗證
 
-### 輸入
-
-測試資料圖形架構在 main() 函式中建構了 6 個節點（0 ~ 5）的有向圖：
-
-    0 -> 1 (w=3), 0 -> 2 (w=2)
-    1 -> 3 (w=4), 2 -> 3 (w=1)
-    3 -> 4 (w=2), 3 -> 5 (w=3)
-
-### 輸出
-
-AOV: 0 1 2 3 4 5
-
-AOE : Critical Path:
-
-0 -> 1
-
-1 -> 3
-
-3 -> 5
+| 測試案例 | 輸入參數  | 輸出  |
+|----------|--------------|--------------|
+| 測試   |<img width="247" height="203" alt="image" src="https://github.com/user-attachments/assets/a0ece13e-f089-4af3-8e86-b0bd5daa6245" /> |<img width="412" height="286" alt="image" src="https://github.com/user-attachments/assets/fce1cd5c-f084-42c1-aa93-aa97b47d1d29" />|
 
 ## 結論
 
