@@ -934,29 +934,12 @@ int main() {
 
 ## 測試與驗證
 
-### 輸入
-
-6 個節點（0到5）的圖，並加入了以下邊：
-
-        (0, 1), (0, 2), (1, 3), (2, 3), (3, 4)。
+| 測試案例 | 輸入參數  | 輸出  |
+|----------|--------------|--------------|
+| 測試   |<img width="244" height="220" alt="image" src="https://github.com/user-attachments/assets/010973cc-26f9-48a7-b3c9-378298d31090" />  | <img width="546" height="245" alt="image" src="https://github.com/user-attachments/assets/8e46d95c-9d51-4d75-a0d9-bccc96465baf" /> |
         
-節點5沒有與任何邊相連。
 
-### 輸出
 
-DFS 走訪: 0 1 3 2 4 5
-
-BFS 走訪: 0 1 2 3 4 5
-
-元件 1: 0 1 3 2 4
-
-元件 2: 5
-
-圖中共有 2 個連通元件。
-
-生成樹的邊有: (0, 1) (1, 3) (3, 2) (3, 4)
-
-圖中的關節點有: 3
 
 ## 結論
 
@@ -1123,35 +1106,9 @@ int main() {
 
 ### 輸入
 
-測試資料圖形架構在 main() 函式中建構了一個包含 5 個節點（0 ~ 4）的無向帶權圖：
-
-    (0, 1, w=2)
-    (0, 2, w=4)
-    (1, 2, w=1)
-    (1, 3, w=7)
-    (2, 4, w=3)
-
-### 輸出
-
-Prim MST:
-
-0 - 1
-
-1 - 2
-
-1 - 3
-
-2 - 4
-
-Kruskal MST:
-
-1 - 2
-
-0 - 1
-
-2 - 4
-
-1 - 3
+| 測試案例 | 輸入參數  | 輸出  |
+|----------|--------------|--------------|
+| 測試   |<img width="277" height="182" alt="image" src="https://github.com/user-attachments/assets/71b00fed-4c8c-4674-939e-ab80c18a4160" /> | <img width="155" height="269" alt="image" src="https://github.com/user-attachments/assets/725bfc1c-0a8e-4df2-9bc0-8b89542cbf1a" />|
 
 ## 結論
 
@@ -1252,29 +1209,9 @@ int main() {
 
 ## 測試與驗證
 
-### 輸入
-
-在 main() 函式中，你建立了一個有 5 個節點的有向圖（Directed Graph），其結構與權重如下：
-
-    0 -> 1 (權重 2)
-    0 -> 2 (權重 4)
-    1 -> 3 (權重 7)
-    1 -> 2 (權重 1)
-    2 -> 4 (權重 3)
-
-### 輸出
-
-Shortest Paths:
-
-0 = 0
-
-1 = 2
-
-2 = 3
-
-3 = 9
-
-4 = 6
+| 測試案例 | 輸入參數  | 輸出  |
+|----------|--------------|--------------|
+| 測試   |<img width="248" height="174" alt="image" src="https://github.com/user-attachments/assets/853a1d22-f60f-4405-b27c-8c32180d5f87" /> | <img width="198" height="148" alt="image" src="https://github.com/user-attachments/assets/867c1f46-874c-4202-908c-22ad4a444d27" />|
 
 ## 結論
 
