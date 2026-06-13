@@ -311,27 +311,26 @@ public:
     }
 
     void Display() const {
-        cout << "Edge Nodes\n";
         for (int i = 0; i < (int)A_edges.size(); i++) {
             EdgeNode* edge = A_edges[i];
-            cout << "N" << edge->c0 << " [ "
+            cout << "Node" << edge->c0 << " [ "
                 << (edge->c1 + 1) << " " << (edge->c2 + 1) << " ";
 
-            if (edge->c1_link != NULL) cout << "N" << edge->c1_link->c0 << " ";
+            if (edge->c1_link != NULL) cout << "Node" << edge->c1_link->c0 << " ";
             else cout << "0 ";
 
-            if (edge->c2_link != NULL) cout << "N" << edge->c2_link->c0 << " ";
+            if (edge->c2_link != NULL) cout << "Node" << edge->c2_link->c0 << " ";
             else cout << "0 ";
 
-            cout << "] edge(" << (edge->c1 + 1) << "," << (edge->c2 + 1) << ")\n";
+            cout << "] edge[" << (edge->c1 + 1) << "," << (edge->c2 + 1) << "]\n";
         }
 
-        cout << "\nVertex Lists\n";
+        cout << "\nthe lists are\n";
         for (int i = 0; i < n; i++) {
             cout << "vertex " << (i + 1) << " : ";
             EdgeNode* p = F_edge[i];
             while (p != NULL) {
-                cout << "N" << p->c0;
+                cout << "Node" << p->c0;
                 bool hasNext = false;
                 if (p->c1 == i && p->c1_link != NULL) hasNext = true;
                 if (p->c2 == i && p->c2_link != NULL) hasNext = true;
@@ -346,19 +345,19 @@ public:
     }
 };
 
-/* ===================== Main ===================== */
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
     int vc, ec;
     cin >> vc >> ec;
+	
 
     vector<pair<int, int>> edges(ec);
     for (int i = 0; i < ec; i++) {
         cin >> edges[i].first >> edges[i].second;
     }
-
+    cout << "have" << vc << " vertex" << ",have" << ec << " edge\n";
     AMatrix g1;
     AList g2;
     AMatrixList g3;
@@ -383,13 +382,13 @@ int main() {
         g3.InsertEdge(u, v);
     }
 
-    cout << "===== 1) Adjacency Matrix =====\n";
+    cout << "  Adjacency Matrix \n";
     g1.Display();
 
-    cout << "\n===== 2) Adjacency List =====\n";
+    cout << "\n  Adjacency List \n";
     g2.Display();
 
-    cout << "\n===== 3) Adjacency Multilist =====\n";
+    cout << "\n  Adjacency Multilist \n";
     g3.Display();
 
     return 0;
