@@ -354,7 +354,7 @@ public:
             if (edge->c2_link != NULL) cout << "N" << edge->c2_link->c0 << " ";
             else cout << "0 ";
 
-            cout << "] edge(" << (edge->c1 + 1) << "," << (edge->c2 + 1) << ")\n";
+            cout << "] edge[" << (edge->c1 + 1) << "," << (edge->c2 + 1) << "]\n";
         }
 
         cout << "\nVertex Lists\n";
@@ -377,7 +377,6 @@ public:
     }
 };
 
-/* ===================== Main ===================== */
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
@@ -414,13 +413,13 @@ int main() {
         g3.InsertEdge(u, v);
     }
 
-    cout << "===== 1) Adjacency Matrix =====\n";
+    cout << "  Adjacency Matrix \n";
     g1.Display();
 
-    cout << "\n===== 2) Adjacency List =====\n";
+    cout << "\n  Adjacency List \n";
     g2.Display();
 
-    cout << "\n===== 3) Adjacency Multilist =====\n";
+    cout << "\n  Adjacency Multilist \n";
     g3.Display();
 
     return 0;
