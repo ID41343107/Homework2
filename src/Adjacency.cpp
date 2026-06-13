@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <utility>
 using namespace std;
-//gragh 副
+
+/* ===================== Graph ADT ===================== */
 class Graph {
 public:
     Graph() : n(0), e(0) {}
@@ -26,17 +28,19 @@ protected:
     int e;
 };
 
-/* ===================== 1) AdjacencyMatrix ===================== */
+/* ===================== 1) Adjacency Matrix ===================== */
 class AMatrix : public Graph {
 private:
-    vector< vector<int> > mx;
+    vector<vector<int>> mx;
 
 public:
     AMatrix() : Graph() {}
 
     int Degree(int u) const override {
         int t = 0;
-        for (int i = 0; i < n; i++) if (mx[u][i] == 1) t++;
+        for (int i = 0; i < n; i++) {
+            if (mx[u][i] == 1) t++;
+        }
         return t;
     }
 
@@ -46,7 +50,9 @@ public:
 
     void InsertVertex(int /*v*/) override {
         n++;
-        for (int i = 0; i < (int)mx.size(); i++) mx[i].push_back(0);
+        for (int i = 0; i < (int)mx.size(); i++) {
+            mx[i].push_back(0);
+        }
         mx.push_back(vector<int>(n, 0));
     }
 
@@ -68,14 +74,16 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (這份作業展示用，其實不一定會用到)
-        for (int j = 0; j < n; j++) if (mx[v][j] == 1) e--;
+        for (int j = 0; j < n; j++) {
+            if (mx[v][j] == 1) e--;
+        }
         mx.erase(mx.begin() + v);
-        for (int i = 0; i < (int)mx.size(); i++) mx[i].erase(mx[i].begin() + v);
+        for (int i = 0; i < (int)mx.size(); i++) {
+            mx[i].erase(mx[i].begin() + v);
+        }
         n--;
     }
 
-    // display exactly like image 6 (no index header)
     void Display() const {
         cout << "Adjacency Matrix\n";
         for (int i = 0; i < n; i++) {
@@ -87,7 +95,7 @@ public:
     }
 };
 
-/* ===================== 2) AdjacencyList ===================== */
+/* ===================== 2) Adjacency List ===================== */
 class AList : public Graph {
 private:
     vector< list<int> > adj;
@@ -100,9 +108,8 @@ public:
     }
 
     bool ExistsEdge(int u, int v) const override {
-        list<int>::const_iterator it;
-        for (it = adj[u].begin(); it != adj[u].end(); ++it) {
-            if (*it == v) return true;
+        for (int x : adj[u]) {
+            if (x == v) return true;
         }
         return false;
     }
@@ -128,24 +135,33 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (展示用)
-        list<int>::iterator it;
-        for (it = adj[v].begin(); it != adj[v].end(); ++it) {
-            int u = *it;
+        for (int u : adj[v]) {
             adj[u].remove(v);
             e--;
         }
         adj.erase(adj.begin() + v);
         n--;
+
         for (int i = 0; i < n; i++) {
-            for (it = adj[i].begin(); it != adj[i].end(); ++it) {
-                if (*it > v) (*it)--;
+            for (int& x : adj[i]) {
+                if (x > v) x--;
             }
+        }
+    }
+
+   
+    void Display() const {
+        for (int i = 0; i < n; i++) {
+            cout << "aList[" << (i + 1) << "] ";
+            for (int x : adj[i]) {
+                cout << (x + 1) << " ";
+            }
+            cout << "\n";
         }
     }
 };
 
-/* ===================== 3) AdjacencyMatrixList (Adjacency Multilist) ===================== */
+/* ===================== 3) Adjacency Multilist ===================== */
 class AMatrixList : public Graph {
 private:
     struct EdgeNode {
@@ -206,7 +222,9 @@ public:
     AMatrixList() : Graph() {}
 
     ~AMatrixList() override {
-        for (int i = 0; i < (int)A_edges.size(); i++) delete A_edges[i];
+        for (int i = 0; i < (int)A_edges.size(); i++) {
+            delete A_edges[i];
+        }
     }
 
     int Degree(int u) const override {
@@ -229,7 +247,6 @@ public:
     }
 
     void InsertVertex(int /*v*/) override {
-        // for multilist, we need a head pointer per vertex
         F_edge.push_back(NULL);
         n++;
     }
@@ -240,7 +257,6 @@ public:
 
         EdgeNode* edge = new EdgeNode(e, u, v);
 
-        // head insert into u / v lists
         edge->c1_link = F_edge[u];
         edge->c2_link = F_edge[v];
         F_edge[u] = edge;
@@ -256,7 +272,10 @@ public:
         EdgeNode* target = NULL;
         EdgeNode* p = F_edge[u];
         while (p != NULL) {
-            if (isTarget(p, u, v)) { target = p; break; }
+            if (isTarget(p, u, v)) {
+                target = p;
+                break;
+            }
             p = nextFrom(p, u);
         }
         if (target == NULL) return;
@@ -264,10 +283,11 @@ public:
         unlinkFromVertex(u, target);
         unlinkFromVertex(v, target);
 
-        // remove from A_edges
-        vector<EdgeNode*>::iterator it;
-        for (it = A_edges.begin(); it != A_edges.end(); ++it) {
-            if (*it == target) { A_edges.erase(it); break; }
+        for (auto it = A_edges.begin(); it != A_edges.end(); ++it) {
+            if (*it == target) {
+                A_edges.erase(it);
+                break;
+            }
         }
 
         delete target;
@@ -275,27 +295,27 @@ public:
     }
 
     void DeleteVertex(int v) override {
-        // (展示用，不一定會用到)
         while (F_edge[v] != NULL) {
             EdgeNode* p = F_edge[v];
             int other = (p->c1 == v) ? p->c2 : p->c1;
             DeleteEdge(v, other);
         }
+
         F_edge.erase(F_edge.begin() + v);
         n--;
+
         for (int i = 0; i < (int)A_edges.size(); i++) {
             if (A_edges[i]->c1 > v) A_edges[i]->c1--;
             if (A_edges[i]->c2 > v) A_edges[i]->c2--;
         }
     }
 
-    // Display exactly like image 6
     void Display() const {
-        cout << "---------- Edge Nodes ----------\n";
+        cout << "Edge Nodes\n";
         for (int i = 0; i < (int)A_edges.size(); i++) {
             EdgeNode* edge = A_edges[i];
             cout << "N" << edge->c0 << " [ "
-                << edge->c1 << " " << edge->c2 << " ";
+                << (edge->c1 + 1) << " " << (edge->c2 + 1) << " ";
 
             if (edge->c1_link != NULL) cout << "N" << edge->c1_link->c0 << " ";
             else cout << "0 ";
@@ -303,16 +323,15 @@ public:
             if (edge->c2_link != NULL) cout << "N" << edge->c2_link->c0 << " ";
             else cout << "0 ";
 
-            cout << "] edge(" << edge->c1 << "," << edge->c2 << ")\n";
+            cout << "] edge(" << (edge->c1 + 1) << "," << (edge->c2 + 1) << ")\n";
         }
 
-        cout << "\n---------- Vertex Lists ----------\n";
+        cout << "\nVertex Lists\n";
         for (int i = 0; i < n; i++) {
-            cout << "vertex " << i << " : ";
+            cout << "vertex " << (i + 1) << " : ";
             EdgeNode* p = F_edge[i];
             while (p != NULL) {
                 cout << "N" << p->c0;
-
                 bool hasNext = false;
                 if (p->c1 == i && p->c1_link != NULL) hasNext = true;
                 if (p->c2 == i && p->c2_link != NULL) hasNext = true;
@@ -327,53 +346,51 @@ public:
     }
 };
 
-/* ===================== Main - match image 6 test style ===================== */
+/* ===================== Main ===================== */
 int main() {
-    int op,vc;
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-    cin >> op;      // choose 1/2/3
-    cin >> vc;      // Vertex count
+    int vc, ec;
+    cin >> vc >> ec;
 
-    if (op == 1) {
-        AMatrix g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
-
-        // read 3 edges (like your sample)
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
-        }
-        g.Display();
+    vector<pair<int, int>> edges(ec);
+    for (int i = 0; i < ec; i++) {
+        cin >> edges[i].first >> edges[i].second;
     }
-    else if (op == 2) {
-        AList g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
 
-        // read 3 edges
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
+    AMatrix g1;
+    AList g2;
+    AMatrixList g3;
+
+    for (int i = 0; i < vc; i++) {
+        g1.InsertVertex(i);
+        g2.InsertVertex(i);
+        g3.InsertVertex(i);
+    }
+
+    for (int i = 0; i < ec; i++) {
+        int u = edges[i].first - 1;  // 1-based -> 0-based
+        int v = edges[i].second - 1; // 1-based -> 0-based
+
+        if (u < 0 || u >= vc || v < 0 || v >= vc) {
+            cout << "Invalid edge input: " << edges[i].first << " " << edges[i].second << "\n";
+            return 0;
         }
 
-        // then do Degree(0) and CheckEdge(0,2) like sample
-        cout << "Degree = " << g.Degree(0) << "\n";
-        if (g.ExistsEdge(0, 2)) cout << "Edge exists.\n";
-        else cout << "Edge does not exist.\n";
+        g1.InsertEdge(u, v);
+        g2.InsertEdge(u, v);
+        g3.InsertEdge(u, v);
     }
-    else if (op == 3) {
-        AMatrixList g;
-        for (int i = 0; i < vc; i++) g.InsertVertex(i);
 
-        // read 3 edges
-        int u, v;
-        for (int k = 0; k < 3; k++) {
-            cin >> u >> v;
-            g.InsertEdge(u, v);
-        }
-        g.Display();
-    }
+    cout << "===== 1) Adjacency Matrix =====\n";
+    g1.Display();
+
+    cout << "\n===== 2) Adjacency List =====\n";
+    g2.Display();
+
+    cout << "\n===== 3) Adjacency Multilist =====\n";
+    g3.Display();
 
     return 0;
 }
