@@ -444,7 +444,7 @@ int main() {
 
 | 測試案例 | 輸入參數  | 輸出  |
 |----------|--------------|--------------|
-| 測試一   |5：共有 5 個頂點 3：共有 3 條邊 邊：1 2,2 5,1 4  |<img width="481" height="725" alt="image" src="https://github.com/user-attachments/assets/424847bb-e4f6-49c5-8e62-abe0bc1dff1e" />   |
+| 測試一   |5：共有 5 個頂點 3：共有 3 條邊 邊：1 2,2 5,1 4  |<img width="741" height="878" alt="image" src="https://github.com/user-attachments/assets/2aaefdc4-5308-441b-a08d-d17db4866380" />|
 
 
 
