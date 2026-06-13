@@ -180,7 +180,7 @@ public:
         }
     }
 
-    // 輸出格式改成圖片中的 aList[1], aList[2] ...
+   
     void Display() const {
         for (int i = 0; i < n; i++) {
             cout << "aList[" << (i + 1) << "] ";
@@ -342,7 +342,7 @@ public:
     }
 
     void Display() const {
-        cout << "---------- Edge Nodes ----------\n";
+        cout << "Edge Nodes\n";
         for (int i = 0; i < (int)A_edges.size(); i++) {
             EdgeNode* edge = A_edges[i];
             cout << "N" << edge->c0 << " [ "
@@ -357,7 +357,7 @@ public:
             cout << "] edge(" << (edge->c1 + 1) << "," << (edge->c2 + 1) << ")\n";
         }
 
-        cout << "\n---------- Vertex Lists ----------\n";
+        cout << "\nVertex Lists\n";
         for (int i = 0; i < n; i++) {
             cout << "vertex " << (i + 1) << " : ";
             EdgeNode* p = F_edge[i];
