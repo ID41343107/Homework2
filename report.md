@@ -29,400 +29,408 @@
 ### Adjacency
 
 ```cpp
-#include <iostream>
-#include <vector>
-#include <list>
-#include <utility>
-using namespace std;
+#include <iostream>  
+#include <vector>     // 提供 vector 動態陣列
+#include <list>       // 提供 list 雙向鏈結串列
+#include <utility>    // 提供 pair
+using namespace std; 
 
 /* ===================== Graph ADT ===================== */
+// 圖的抽象資料型別基底類別
 class Graph {
 public:
-    Graph() : n(0), e(0) {}
-    virtual ~Graph() {}
+    Graph() : n(0), e(0) {}   // 建構子 初始化頂點數 n 與邊數 e 為 0
+    virtual ~Graph() {}       // 虛擬解構子，讓子類別可正確釋放資源
 
-    bool IsEmpty() const { return n == 0; }
-    int NumberOfVertices() const { return n; }
-    int NumberOfEdges() const { return e; }
+    bool IsEmpty() const { return n == 0; }      // 判斷圖是否為空
+    int NumberOfVertices() const { return n; }   // 回傳頂點數
+    int NumberOfEdges() const { return e; }      // 回傳邊數
 
-    virtual int Degree(int u) const = 0;
-    virtual bool ExistsEdge(int u, int v) const = 0;
+    virtual int Degree(int u) const = 0;         // 計算頂點 u 的度數
+    virtual bool ExistsEdge(int u, int v) const = 0; // 判斷 u 與 v 是否有邊相連
 
-    virtual void InsertVertex(int v) = 0;
-    virtual void InsertEdge(int u, int v) = 0;
+    virtual void InsertVertex(int v) = 0;        // 插入頂點
+    virtual void InsertEdge(int u, int v) = 0;   // 插入邊
 
-    virtual void DeleteVertex(int v) = 0;
-    virtual void DeleteEdge(int u, int v) = 0;
+    virtual void DeleteVertex(int v) = 0;        // 刪除頂點
+    virtual void DeleteEdge(int u, int v) = 0;    // 刪除邊
 
 protected:
-    int n;
-    int e;
+    int n;   // 頂點數
+    int e;   // 邊數
 };
 
 /* ===================== 1) Adjacency Matrix ===================== */
+// 鄰接矩陣表示法
 class AMatrix : public Graph {
 private:
-    vector<vector<int>> mx;
+    vector<vector<int>> mx;  // 鄰接矩陣 1 表示有邊 0 表示無邊
 
 public:
-    AMatrix() : Graph() {}
+    AMatrix() : Graph() {}   // 建構子，呼叫父類別建構子
 
     int Degree(int u) const override {
-        int t = 0;
-        for (int i = 0; i < n; i++) {
-            if (mx[u][i] == 1) t++;
+        int t = 0;  // 記錄度數
+        for (int i = 0; i < n; i++) {   // 掃描第 u 列
+            if (mx[u][i] == 1) t++;     // 若有邊則度數 +1
         }
-        return t;
+        return t;  // 回傳度數
     }
 
     bool ExistsEdge(int u, int v) const override {
-        return mx[u][v] == 1;
+        return mx[u][v] == 1;  // 直接檢查矩陣位置是否為 1
     }
 
     void InsertVertex(int /*v*/) override {
-        n++;
+        n++;  // 頂點數加 1
         for (int i = 0; i < (int)mx.size(); i++) {
-            mx[i].push_back(0);
+            mx[i].push_back(0);   // 每一列補上一個 0
         }
-        mx.push_back(vector<int>(n, 0));
+        mx.push_back(vector<int>(n, 0)); // 新增一列，大小為 n，全部初始化為 0
     }
 
     void InsertEdge(int u, int v) override {
-        if (u == v) return;
-        if (mx[u][v] == 0) {
-            mx[u][v] = 1;
-            mx[v][u] = 1;
-            e++;
+        if (u == v) return;     
+        if (mx[u][v] == 0) {      // 若還沒有邊
+            mx[u][v] = 1;         // 設定 u->v
+            mx[v][u] = 1;         // 無向圖 所以 v->u 也設為 1
+            e++;                  // 邊數加 1
         }
     }
 
     void DeleteEdge(int u, int v) override {
-        if (mx[u][v] == 1) {
-            mx[u][v] = 0;
-            mx[v][u] = 0;
-            e--;
+        if (mx[u][v] == 1) {      // 若邊存在
+            mx[u][v] = 0;         // 移除 u->v
+            mx[v][u] = 0;         // 移除 v->u
+            e--;                  // 邊數減 1
         }
     }
 
     void DeleteVertex(int v) override {
-        for (int j = 0; j < n; j++) {
-            if (mx[v][j] == 1) e--;
+        for (int j = 0; j < n; j++) {       // 檢查第 v 個頂點與其他頂點的連結
+            if (mx[v][j] == 1) e--;         // 每移除一條邊，邊數減 1
         }
-        mx.erase(mx.begin() + v);
+        mx.erase(mx.begin() + v);           // 刪除第 v 列
         for (int i = 0; i < (int)mx.size(); i++) {
-            mx[i].erase(mx[i].begin() + v);
+            mx[i].erase(mx[i].begin() + v); // 刪除第 v 欄
         }
-        n--;
+        n--;                                 // 頂點數減 1
     }
 
     void Display() const {
-        cout << "Adjacency Matrix\n";
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                cout << mx[i][j] << " ";
+        cout << "Adjacency Matrix\n";        // 印出標題
+        for (int i = 0; i < n; i++) {        // 逐列輸出
+            for (int j = 0; j < n; j++) {    // 逐欄輸出
+                cout << mx[i][j] << " ";     // 輸出矩陣元素
             }
-            cout << "\n";
+            cout << "\n";                    // 換行
         }
     }
 };
 
 /* ===================== 2) Adjacency List ===================== */
+// 鄰接串列表示法
 class AList : public Graph {
 private:
-    vector< list<int> > adj;
+    vector< list<int> > adj;   // 每個頂點對應一個鄰接串列
 
 public:
-    AList() : Graph() {}
+    AList() : Graph() {}       // 建構子
 
     int Degree(int u) const override {
-        return (int)adj[u].size();
+        return (int)adj[u].size();  // 串列長度即為度數
     }
 
     bool ExistsEdge(int u, int v) const override {
-        for (int x : adj[u]) {
-            if (x == v) return true;
+        for (int x : adj[u]) {      // 掃描 u 的鄰接串列
+            if (x == v) return true; // 找到 v 表示有邊
         }
-        return false;
+        return false;               // 沒找到表示無邊
     }
 
     void InsertVertex(int /*v*/) override {
-        adj.push_back(list<int>());
-        n++;
+        adj.push_back(list<int>()); // 新增一個空串列
+        n++;                        // 頂點數加 1
     }
 
     void InsertEdge(int u, int v) override {
-        if (u == v) return;
-        if (ExistsEdge(u, v)) return;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-        e++;
+        if (u == v) return;         
+        if (ExistsEdge(u, v)) return; // 若邊已存在就不重複加入
+        adj[u].push_back(v);        // 加入 u -> v
+        adj[v].push_back(u);        // 加入 v -> u（無向圖）
+        e++;                        // 邊數加 1
     }
 
     void DeleteEdge(int u, int v) override {
-        if (!ExistsEdge(u, v)) return;
-        adj[u].remove(v);
-        adj[v].remove(u);
-        e--;
+        if (!ExistsEdge(u, v)) return; // 若邊不存在 直接返回
+        adj[u].remove(v);              // 從 u 的串列刪除 v
+        adj[v].remove(u);              // 從 v 的串列刪除 u
+        e--;                           // 邊數減 1
     }
 
     void DeleteVertex(int v) override {
-        for (int u : adj[v]) {
-            adj[u].remove(v);
-            e--;
+        for (int u : adj[v]) {     // 找出與 v 相連的所有頂點
+            adj[u].remove(v);      // 從對方串列刪除 v
+            e--;                   // 每刪一條邊，邊數減 1
         }
-        adj.erase(adj.begin() + v);
-        n--;
+        adj.erase(adj.begin() + v); // 刪除 v 的鄰接串列
+        n--;                        // 頂點數減 1
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {      // 更新所有頂點編號
             for (int& x : adj[i]) {
-                if (x > v) x--;
+                if (x > v) x--;            // 大於 v 的頂點編號往前調整
             }
         }
     }
 
-   
     void Display() const {
         for (int i = 0; i < n; i++) {
-            cout << "aList[" << (i + 1) << "] ";
+            cout << "aList[" << (i + 1) << "] ";  // 輸出頂點編號（1-based）
             for (int x : adj[i]) {
-                cout << (x + 1) << " ";
+                cout << (x + 1) << " ";           // 輸出鄰接頂點（1-based）
             }
-            cout << "\n";
+            cout << "\n";                         // 換行
         }
     }
 };
 
 /* ===================== 3) Adjacency Multilist ===================== */
+// 鄰接多重串列表示法
 class AMatrixList : public Graph {
 private:
+    // 邊節點結構
     struct EdgeNode {
-        int c0;
-        int c1, c2;
-        EdgeNode* c1_link;
-        EdgeNode* c2_link;
+        int c0;          // 邊的編號
+        int c1, c2;      // 兩端點
+        EdgeNode* c1_link; // 指向與 c1 相連的下一條邊
+        EdgeNode* c2_link; // 指向與 c2 相連的下一條邊
 
         EdgeNode(int id, int i, int j) {
-            c0 = id;
-            c1 = i;
-            c2 = j;
-            c1_link = NULL;
-            c2_link = NULL;
+            c0 = id;     // 設定邊編號
+            c1 = i;      // 第一端點
+            c2 = j;      // 第二端點
+            c1_link = NULL; // 初始化為空
+            c2_link = NULL; // 初始化為空
         }
     };
 
-    vector<EdgeNode*> F_edge;
-    vector<EdgeNode*> A_edges;
+    vector<EdgeNode*> F_edge; // 每個頂點的第一條邊
+    vector<EdgeNode*> A_edges; // 存放所有邊 方便管理與釋放
 
+    // 根據頂點 u，取得下一條邊
     EdgeNode* nextFrom(EdgeNode* p, int u) const {
-        if (p == NULL) return NULL;
-        if (p->c1 == u) return p->c1_link;
-        return p->c2_link;
+        if (p == NULL) return NULL;       // 若節點為空 回傳空
+        if (p->c1 == u) return p->c1_link; // 若 u 是 c1，走 c1_link
+        return p->c2_link;                // 否則走 c2_link
     }
 
+    // 判斷 p 是否為 u-v 這條邊
     bool isTarget(EdgeNode* p, int u, int v) const {
-        if (p == NULL) return false;
+        if (p == NULL) return false; // 空指標直接回傳 false
         return (p->c1 == u && p->c2 == v) || (p->c1 == v && p->c2 == u);
     }
 
+    // 從某個頂點的串列中解除target 的連結
     void unlinkFromVertex(int u, EdgeNode* target) {
-        EdgeNode* cur = F_edge[u];
-        EdgeNode* prev = NULL;
+        EdgeNode* cur = F_edge[u]; // 從頂點 u 的第一條邊開始
+        EdgeNode* prev = NULL;     // 前一個節點
 
         while (cur != NULL) {
-            if (cur == target) break;
+            if (cur == target) break;  // 找到目標邊就停
             prev = cur;
-            cur = nextFrom(cur, u);
+            cur = nextFrom(cur, u);    // 移到下一條邊
         }
-        if (cur == NULL) return;
+        if (cur == NULL) return;      // 找不到就結束
 
-        EdgeNode* nxt = nextFrom(cur, u);
+        EdgeNode* nxt = nextFrom(cur, u); // 記錄下一條邊
 
         if (prev == NULL) {
-            F_edge[u] = nxt;
+            F_edge[u] = nxt;          // 若目標是第一條邊，更新指標
         }
         else {
-            if (prev->c1 == u) prev->c1_link = nxt;
+            if (prev->c1 == u) prev->c1_link = nxt; // 更新前一個節點連結
             else prev->c2_link = nxt;
         }
 
-        if (target->c1 == u) target->c1_link = NULL;
+        if (target->c1 == u) target->c1_link = NULL; // 清掉target 對 u 的連結
         else target->c2_link = NULL;
     }
 
 public:
-    AMatrixList() : Graph() {}
+    AMatrixList() : Graph() {} // 建構子
 
     ~AMatrixList() override {
         for (int i = 0; i < (int)A_edges.size(); i++) {
-            delete A_edges[i];
+            delete A_edges[i]; // 釋放所有邊節點記憶體
         }
     }
 
     int Degree(int u) const override {
-        int t = 0;
-        EdgeNode* p = F_edge[u];
+        int t = 0;              // 計算度數
+        EdgeNode* p = F_edge[u]; // 從第一條邊開始
         while (p != NULL) {
-            t++;
-            p = nextFrom(p, u);
+            t++;                // 每走到一條邊，度數 +1
+            p = nextFrom(p, u); // 走到下一條邊
         }
-        return t;
+        return t;               // 回傳度數
     }
 
     bool ExistsEdge(int u, int v) const override {
-        EdgeNode* p = F_edge[u];
+        EdgeNode* p = F_edge[u]; // 從 u 的第一條邊開始
         while (p != NULL) {
-            if (isTarget(p, u, v)) return true;
-            p = nextFrom(p, u);
+            if (isTarget(p, u, v)) return true; // 找到目標邊
+            p = nextFrom(p, u);                 // 繼續找下一條
         }
-        return false;
+        return false; // 沒找到
     }
 
     void InsertVertex(int /*v*/) override {
-        F_edge.push_back(NULL);
-        n++;
+        F_edge.push_back(NULL); // 新增一個頂點，初始沒有邊
+        n++;                    // 頂點數加 1
     }
 
     void InsertEdge(int u, int v) override {
-        if (u == v) return;
-        if (ExistsEdge(u, v)) return;
+        if (u == v) return;         
+        if (ExistsEdge(u, v)) return; // 避免重複邊
 
-        EdgeNode* edge = new EdgeNode(e, u, v);
+        EdgeNode* edge = new EdgeNode(e, u, v); // 建立新邊節點
 
-        edge->c1_link = F_edge[u];
-        edge->c2_link = F_edge[v];
-        F_edge[u] = edge;
-        F_edge[v] = edge;
+        edge->c1_link = F_edge[u]; // 新邊接到 u 的串列前面
+        edge->c2_link = F_edge[v]; // 新邊接到 v 的串列前面
+        F_edge[u] = edge;          // 更新 u 的頭指標
+        F_edge[v] = edge;          // 更新 v 的頭指標
 
-        A_edges.push_back(edge);
-        e++;
+        A_edges.push_back(edge);   // 記錄這條邊
+        e++;                       // 邊數加 1
     }
 
     void DeleteEdge(int u, int v) override {
-        if (!ExistsEdge(u, v)) return;
+        if (!ExistsEdge(u, v)) return; // 若邊不存在則返回
 
-        EdgeNode* target = NULL;
-        EdgeNode* p = F_edge[u];
+        EdgeNode* target = NULL;      // 要刪除的邊
+        EdgeNode* p = F_edge[u];      // 從 u 的串列找
         while (p != NULL) {
             if (isTarget(p, u, v)) {
-                target = p;
+                target = p;           // 找到目標邊
                 break;
             }
-            p = nextFrom(p, u);
+            p = nextFrom(p, u);       // 繼續往下找
         }
-        if (target == NULL) return;
+        if (target == NULL) return;   // 防傻
 
-        unlinkFromVertex(u, target);
-        unlinkFromVertex(v, target);
+        unlinkFromVertex(u, target);   // 從 u 的串列移除
+        unlinkFromVertex(v, target);   // 從 v 的串列移除
 
         for (auto it = A_edges.begin(); it != A_edges.end(); ++it) {
             if (*it == target) {
-                A_edges.erase(it);
+                A_edges.erase(it);    // 從總邊表移除
                 break;
             }
         }
 
-        delete target;
-        e--;
+        delete target; // 釋放記憶體
+        e--;           // 邊數減1
     }
 
     void DeleteVertex(int v) override {
-        while (F_edge[v] != NULL) {
+        while (F_edge[v] != NULL) {          // 只要還有相連邊就一直刪除
             EdgeNode* p = F_edge[v];
-            int other = (p->c1 == v) ? p->c2 : p->c1;
-            DeleteEdge(v, other);
+            int other = (p->c1 == v) ? p->c2 : p->c1; // 找到另一端點
+            DeleteEdge(v, other);           // 刪除這條邊
         }
 
-        F_edge.erase(F_edge.begin() + v);
-        n--;
+        F_edge.erase(F_edge.begin() + v);   // 刪除頂點v的頭指標
+        n--;                                // 頂點數減1
 
         for (int i = 0; i < (int)A_edges.size(); i++) {
-            if (A_edges[i]->c1 > v) A_edges[i]->c1--;
+            if (A_edges[i]->c1 > v) A_edges[i]->c1--; // 修正端點編號
             if (A_edges[i]->c2 > v) A_edges[i]->c2--;
         }
     }
 
     void Display() const {
-        cout << "Edge Nodes\n";
         for (int i = 0; i < (int)A_edges.size(); i++) {
-            EdgeNode* edge = A_edges[i];
-            cout << "N" << edge->c0 << " [ "
+            EdgeNode* edge = A_edges[i]; // 取得第i條邊
+            cout << "Node" << edge->c0 << " [ "
                 << (edge->c1 + 1) << " " << (edge->c2 + 1) << " ";
 
-            if (edge->c1_link != NULL) cout << "N" << edge->c1_link->c0 << " ";
+            if (edge->c1_link != NULL) cout << "Node" << edge->c1_link->c0 << " ";
             else cout << "0 ";
 
-            if (edge->c2_link != NULL) cout << "N" << edge->c2_link->c0 << " ";
+            if (edge->c2_link != NULL) cout << "Node" << edge->c2_link->c0 << " ";
             else cout << "0 ";
 
             cout << "] edge[" << (edge->c1 + 1) << "," << (edge->c2 + 1) << "]\n";
         }
 
-        cout << "\nVertex Lists\n";
+        cout << "\nthe lists are\n"; // 輸出各頂點的邊串列
         for (int i = 0; i < n; i++) {
             cout << "vertex " << (i + 1) << " : ";
             EdgeNode* p = F_edge[i];
             while (p != NULL) {
-                cout << "N" << p->c0;
-                bool hasNext = false;
+                cout << "Node" << p->c0; // 輸出邊編號
+                bool hasNext = false;    // 判斷是否還有下一條邊
                 if (p->c1 == i && p->c1_link != NULL) hasNext = true;
                 if (p->c2 == i && p->c2_link != NULL) hasNext = true;
 
-                if (hasNext) cout << " -> ";
+                if (hasNext) cout << " -> "; // 如果還有下一條邊，輸出箭頭
 
-                if (p->c1 == i) p = p->c1_link;
+                if (p->c1 == i) p = p->c1_link; // 往下一條邊走
                 else p = p->c2_link;
             }
-            cout << "\n";
+            cout << "\n"; 
         }
     }
 };
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    ios::sync_with_stdio(false); // 加速 C++ I/O
+    cin.tie(nullptr);            // 解除 cin 與 cout 綁定，加速輸入輸出
 
-    int vc, ec;
-    cin >> vc >> ec;
+    int vc, ec;      // vc = vertex count, ec = edge count
+    cin >> vc >> ec; // 讀取頂點數與邊數
 
-    vector<pair<int, int>> edges(ec);
+
+    vector<pair<int, int>> edges(ec); // 儲存所有輸入邊
     for (int i = 0; i < ec; i++) {
-        cin >> edges[i].first >> edges[i].second;
+        cin >> edges[i].first >> edges[i].second; // 讀取每條邊的兩個端點
     }
+    cout << "have" << vc << " vertex" << ",have" << ec << " edge\n"; // 輸出圖的基本資訊
 
-    AMatrix g1;
-    AList g2;
-    AMatrixList g3;
+    AMatrix g1;     // 建立鄰接矩陣圖
+    AList g2;       // 建立鄰接串列圖
+    AMatrixList g3; // 建立鄰接多重串列圖
 
     for (int i = 0; i < vc; i++) {
-        g1.InsertVertex(i);
-        g2.InsertVertex(i);
-        g3.InsertVertex(i);
+        g1.InsertVertex(i); // 插入頂點到鄰接矩陣
+        g2.InsertVertex(i); // 插入頂點到鄰接串列
+        g3.InsertVertex(i); // 插入頂點到鄰接多重串列
     }
 
     for (int i = 0; i < ec; i++) {
-        int u = edges[i].first - 1;  // 1-based -> 0-based
-        int v = edges[i].second - 1; // 1-based -> 0-based
+        int u = edges[i].first - 1;  // 轉成 0-based index
+        int v = edges[i].second - 1; // 轉成 0-based index
 
-        if (u < 0 || u >= vc || v < 0 || v >= vc) {
+        if (u < 0 || u >= vc || v < 0 || v >= vc) { // 輸入是否正確
             cout << "Invalid edge input: " << edges[i].first << " " << edges[i].second << "\n";
-            return 0;
+            return 0; // 
         }
 
-        g1.InsertEdge(u, v);
-        g2.InsertEdge(u, v);
-        g3.InsertEdge(u, v);
+        g1.InsertEdge(u, v); // 插入邊到鄰接矩陣
+        g2.InsertEdge(u, v); // 插入邊到鄰接串列
+        g3.InsertEdge(u, v); // 插入邊到鄰接多重串列
     }
 
-    cout << "  Adjacency Matrix \n";
-    g1.Display();
+    cout << "  Adjacency Matrix \n"; // 顯示鄰接矩陣標題
+    g1.Display();                    // 輸出鄰接矩陣
 
-    cout << "\n  Adjacency List \n";
-    g2.Display();
+    cout << "\n  Adjacency List \n";  // 顯示鄰接串列標題
+    g2.Display();                    // 輸出鄰接串列
 
-    cout << "\n  Adjacency Multilist \n";
-    g3.Display();
+    cout << "\n  Adjacency Multilist \n"; // 顯示鄰接多重串列標題
+    g3.Display();                          // 輸出鄰接多重串列
 
-    return 0;
+    return 0; 
 }
 ```
 
